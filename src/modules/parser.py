@@ -54,9 +54,17 @@ class Parser:
                 f"using default readers"
             )
             # TODO: Implement the metadata generation func
-            documents = SimpleDirectoryReader(
-                input_files=[file_path], file_extractor=self.lmi_file_extractor,
+            raw_documents = SimpleDirectoryReader(
+                input_files=[file_path], 
+                file_extractor=self.lmi_file_extractor,
                 filename_as_id=True
             ).load_data()
+
+            documents = []
+            file_name = Path(file_path).name
+            for i, doc in enumerate(raw_documents):
+                doc.metadata.update({"name": file_name, "category": category})
+                doc.excluded_llm_metadata_keys = ["file_path"]
+                documents.append(doc)
 
         return documents
